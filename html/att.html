@@ -1,0 +1,94 @@
+<!-- 
+	旅游景点信息集成模块
+ 	将景点数据从数据库里拿出来 然后显示在这个页面上
+	暂时只显示数据库里的相关信息
+ -->
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=dba359696d9128e480e86a54ca9944f1"></script> 
+<script type="text/javascript" src="host.js"></script>
+<style type="text/css">
+			body,html{
+				width: 100%;
+				height: 100%;
+			}
+			#tabler{
+				width: 20%;
+				height: 100%;
+				margin: auto;
+				float: left;
+			}
+			#container{
+				width: 80%;
+				height: 100%;
+				margin: auto;
+				float: left;
+			}
+</style>
+
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<title>
+		旅游景点信息集成模块
+	</title>
+</head>
+<body>
+	<div id="tabler">
+		<ul style="font-size: 21px">
+			<li v-for="(it,index) in items" @click="fun(it)">
+				<a href="#">
+					{{index+1}} {{ it.name }}
+				</a>	
+			</li>
+		</ul>
+	</div>
+	<div id="container"></div>
+</body>
+
+
+<script>
+	
+	var app = new Vue({
+			el:"#tabler",
+			data:{
+				items : null,
+				map : null
+			},
+		mounted:function() {
+			var url = "http://"+host+":"+port+"/attraction/list";
+			axios.get(url).then(response => (this.items = response.data.data.reverse())).catch(function (error){
+					console.log("error");
+			})
+				map = new AMap.Map('container', {
+				resizeEnable: true,
+			    center:[112.982279,28.19409],
+			    zoom:11
+	    	});
+		},
+		methods:{
+			fun:function(it){
+				var marker = new AMap.Marker({
+				    position: new AMap.LngLat(it.latitude,it.longitude),   // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+				    title: it.name
+				});
+				marker.setLabel({
+					offset: new AMap.Pixel(20,20),
+					content:it.name
+				});
+				// 将创建的点标记添加到已有的地图实例：
+				map.add(marker);
+				map.setFitView(marker);
+
+				// 移除已创建的 marker
+				// map.remove(marker);
+				// console.log(it.latitude,it.longitude);
+			}
+		}
+	});
+
+</script>
+
+
+</html>
