@@ -2,11 +2,28 @@ package hunnuse.wyc.utils;
 
 /**
  * @ClassName: StringUtil
- * @Description: 字符串匹配算法类
+ * @Description: 字符串算法类
  * @author: tycw
  * @date: 2020/4/17  20:30
  */
 public class StringUtil {
+
+    /**
+     * 两个chart判断是否相似
+     * @param s1
+     * @param s2
+     * @return
+     */
+    public boolean like(String s1,String s2){
+        if (s1.length()!=s2.length())return false;
+        if (s1.length()!=3)return false;
+        if (s1.charAt(0)=='1'&&s2.charAt(0)=='1')return true;
+        if (s1.charAt(1)=='1'&&s2.charAt(1)=='1')return true;
+        if (s1.charAt(2)=='1'&&s2.charAt(2)=='1')return true;
+        return false;
+    }
+
+
     /**
      * 生成next数组
      * @param str 模式串
