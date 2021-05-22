@@ -1,0 +1,190 @@
+<!-- 
+	景点推荐模块
+ -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8">
+		<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=dba359696d9128e480e86a54ca9944f1"></script> 
+		<script type="text/javascript" src="host.js"></script>
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title>旅游景点信息推荐模块</title>    
+	    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-" crossorigin="anonymous">
+	    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+	    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+	    <link rel="stylesheet" href="css/marketing.css">
+	    <style type="text/css">
+	    		body,html{
+					width: 100%;
+					height: 100%;
+				}
+	    		#tabler{
+					width: 20%;
+					height: 100%;
+					margin: auto;
+					float: left;
+				}
+				#container{
+					width: 80%;
+					height: 650px;
+				}
+	    </style>
+	</head>
+
+	<body>
+		<div id="app">
+			<div class="header">
+		    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+		        <a class="pure-menu-heading" href="index.html">首页</a>
+		        <a class="pure-menu-heading" href="att.html">景点展示</a>
+		        <a class="pure-menu-heading" href="attRecommend.html">景点推荐</a>
+		        <a class="pure-menu-heading" href="#">路线查询</a>
+
+		        <ul class="pure-menu-list">
+		            <li class="pure-menu-item"><a class="pure-menu-link" v-text="name" type="button" @click="toUser()">{{name}}</a></li>
+		            <li class="pure-menu-item"><a class="pure-menu-link" v-text="status" type="button" @click="changeStatus()">{{status}}</a></li>
+		        </ul>
+		    </div>
+			</div>
+
+			<br>
+			<br>
+			<br>
+			<div id="tabler">
+				<div id="input">
+			        想去的景点  <input placeholder="多个景点用空格分隔" v-model="attsWant">
+			    	</form>
+			    	<br>
+			    	<button @click="onSubmit()">提交</button>
+				</div>
+		    	
+		    	<div id="output">
+		    		<ul>
+						<li v-for="(it,index) in items">
+							<a v-bind="{href:it.source}">第{{index+1}}条路线</a>：<a href="#" @click="showRoute(it.attsId)">{{it.attractions}}</a>
+						</li>
+					</ul>
+		    	</div>
+			</div>
+			<div id="container"></div>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+	var app = new Vue({
+			el:"#app",
+			data:{
+				attsWant : "",
+				items : null,
+				name:"请登录",
+				status:"login"//"sign up"
+			},
+		mounted:function() {
+			map = new AMap.Map('container', {
+				resizeEnable: true,
+			    center:[112.982279,28.19409],
+			    zoom:11
+    		});
+    		var url = "http://"+host+":"+port+"/user/getUser";
+			var that = this;
+			axios.get(url,{
+				withCredentials: true
+			})
+			.then(function (response) {
+				console.log(response);
+				var serverStatus = response.data.status;
+				if (serverStatus=="not login") {
+					return;
+				}
+				let user = response.data.data;
+				that.isLogin = false;
+				that.name = user.name;
+				that.status = "sign up";
+			})
+			.catch(function (error) {
+				console.log(error);
+			});
+		},
+		methods:{
+			toUser:function(){
+				if (this.status=="sign up") {
+					window.location="user.html";
+				}else{
+					return;
+				}
+			},
+			changeStatus:function(){
+				if (this.status=="login") {
+					window.location="login.html";
+				}else{
+					this.name="请登录";
+					this.status="login";
+				}
+			},
+			onSubmit:function(){
+				console.log(this.attsWant);
+				if (this.attsWant=="") {
+					alert("请输入至少一个景点");
+					return;
+				}
+				var url = "http://"+host+":"+port+"/route/getRoute?attsWant="+this.attsWant;
+				var that=this;
+				axios.get(url)
+				.then(function (response) {
+					that.items = response.data.data;
+					if (that.items.length==0) {
+						alert("抱歉！没有满足要求的景点");
+						return;
+					}
+					console.log(that.items);
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+
+				url = "http://"+host+":"+port+"/user/updateChartByAttsWant?attsWant="+this.attsWant;
+				axios.get(url,{
+					withCredentials: true
+				}).then(function (response){
+					console.log(response.data.data);
+				}).catch(function (error){
+					console.log("error");
+				});
+			},
+			showRoute:function(str){
+				var loc = new Array(); 
+				var arr = str.split("&");
+				for(var i in arr){
+					if (i==arr.length-1) {
+						break;
+					}
+					var loca = arr[i].split(",");
+					loc.unshift(new AMap.LngLat(Number(loca[0]),Number(loca[1])));
+				}
+				map.clearMap();
+				loc.forEach(function(it,index,loc){
+					var tit=null;
+					var marker = new AMap.Marker({
+						position:it,
+						title:tit
+					});
+					marker.setLabel({
+						offset: new AMap.Pixel(20,20),
+						content:tit
+					});
+					map.add(marker);
+				})
+				var line = new AMap.Polyline({
+					path:loc,
+					borderWeight:2,
+					strokeColor:'red',
+					lineJoin: 'round'
+				});
+				map.add(line);
+			}
+		}
+	});
+</script>
