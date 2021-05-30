@@ -1,30 +1,38 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view/>
+  <a-layout class="layout">
+    <Header></Header>
+    <router-view/>
+  </a-layout>
 </template>
-
+<script>
+import { defineComponent, ref } from 'vue';
+import Header from "@/components/Header";
+export default defineComponent({
+  components: {Header},
+  setup() {
+    return {
+      selectedKeys: ref(['2']),
+    };
+  },
+  data() {
+    return {
+      contentStyle : {
+        background: '#fff',
+        padding: '24px',
+        margin: 0,
+        minHeight: '280px'
+      }
+    }
+  }
+});
+</script>
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+#container {
+  width: 80%;
+  min-height: 600px;
+  /*height: fit-content;*/
+  /*height: 1080px;*/
+  /*height: 100%;*/
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>

@@ -28,12 +28,14 @@ public class AttractionController {
 
     @Autowired
     private AttractionService attractionService;
+
     @RequestMapping("/list")
     public CommonReturnType listAttraction(){
         List<WebGeoName> list = webGeoNameMapper.listAttraction();
         return CommonReturnType.create(list);
     }
 
+    // TODO 使用springboot定时自动任务把手动访问这个接口的工作下掉
     @RequestMapping("/insertAttraction2DB")
     public String insertAttraction2DB() throws IOException {
         attractionService.Insert2DB();

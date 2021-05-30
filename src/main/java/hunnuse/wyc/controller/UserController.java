@@ -8,6 +8,7 @@ import hunnuse.wyc.dataobject.WebGeoName;
 import hunnuse.wyc.response.CommonReturnType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import static org.springframework.util.DigestUtils.md5Digest;
 
 /**
  * @ClassName: UserController
@@ -68,7 +71,8 @@ public class UserController {
             return CommonReturnType.create(null,"dont exist");
         }
         User user = userMapper.selectByName(userName);
-        if (user.getPassword().equals(EncodeByMd5(password))) {
+        if (user.getPassword().equals(password)) {
+            // TODO 改为将登录状态token保存在Redis中
             this.httpServletRequest.getSession().setMaxInactiveInterval(30 * 60);//s
             this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
             this.httpServletRequest.getSession().setAttribute("LOGIN_USER",user);
