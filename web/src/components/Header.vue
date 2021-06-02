@@ -106,13 +106,14 @@ export default defineComponent({
       axios.post('/user/login', params).then((response) => {
         loginModalLoading.value = false;
         const data = response.data;
-        if (data.success) {
+        console.log("/user/login response = ", response);
+        console.log("/user/login data = ", data);
+        if (data.status == "success") {
           loginModalVisible.value = false;
           message.success("登录成功！");
-
-          store.commit("setUser", data.content);
+          store.commit("setUser", data.data.user);
         } else {
-          message.error(data.message);
+          message.error(data.status);
         }
       });
     };

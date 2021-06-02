@@ -6,10 +6,14 @@ import hunnuse.wyc.dao.UserMapper;
 import hunnuse.wyc.dataobject.User;
 import hunnuse.wyc.dataobject.WebGeoName;
 import hunnuse.wyc.response.CommonReturnType;
+import hunnuse.wyc.utils.SnowFlake;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -17,7 +21,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.util.DigestUtils.md5Digest;
 
@@ -32,6 +38,9 @@ import static org.springframework.util.DigestUtils.md5Digest;
 @CrossOrigin(allowCredentials="true", allowedHeaders = "*")
 @ResponseBody
 public class UserController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -40,6 +49,10 @@ public class UserController {
     private AttractionService attractionService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private SnowFlake snowFlake;
 
     @RequestMapping(value = "/register",method = {RequestMethod.POST})
     @ResponseBody
@@ -63,22 +76,49 @@ public class UserController {
         return CommonReturnType.create(null);
     }
 
-    @RequestMapping(value = "/login",method = {RequestMethod.POST})
+    @RequestMapping(value = "/login_html",method = {RequestMethod.POST})
     @ResponseBody
-    public CommonReturnType login(@RequestParam(name = "userName")String userName,
+    public CommonReturnType loginHtml(@RequestParam(name = "userName")String userName,
                                      @RequestParam(name = "password")String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         if (userMapper.selectByName(userName)==null){
             return CommonReturnType.create(null,"dont exist");
         }
         User user = userMapper.selectByName(userName);
         if (user.getPassword().equals(password)) {
-            // TODO 改为将登录状态token保存在Redis中
             this.httpServletRequest.getSession().setMaxInactiveInterval(30 * 60);//s
             this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
             this.httpServletRequest.getSession().setAttribute("LOGIN_USER",user);
             return CommonReturnType.create(null);
         }
         return CommonReturnType.create(null,"failed");
+    }
+
+    @RequestMapping(value = "/login",method = {RequestMethod.POST})
+    @ResponseBody
+    public CommonReturnType login(@RequestParam(name = "userName")String userName,
+                                  @RequestParam(name = "password")String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        User user = userMapper.selectByName(userName);
+        if (user == null){
+            return CommonReturnType.create(null,"dont exist");
+        }
+        if (user.getPassword().equals(password)) {
+            Long token = snowFlake.nextId();
+            LOG.info("生成单点登录token：{}，并放入redis中", token);
+            redisTemplate.opsForValue().set(token.toString(), user.toString(), 3600 * 24, TimeUnit.SECONDS);
+            HashMap<String, Object> intent = new HashMap<>();
+            intent.put("token", token);
+            // TODO 定义前端使用的object
+            intent.put("user", user);
+            return CommonReturnType.create(intent);
+        }
+        return CommonReturnType.create(null,"failed");
+    }
+
+    @GetMapping(("/logout/{token}"))
+    public CommonReturnType logout(@PathVariable String token) {
+        redisTemplate.delete(token);
+        LOG.info("从Redis中删除了token:{}", token);
+        return CommonReturnType.create(null);
     }
 
     @RequestMapping(value = "/adminLogin",method = {RequestMethod.POST})
@@ -151,7 +191,7 @@ public class UserController {
         user.setPersonal(chart);
         userMapper.insert(user);
         httpServletRequest.getSession().setAttribute("LOGIN_USER",user);
-        /**
+        /**t
          *  根据chart这三个字节返回完全匹配的景点 如果不够就random
          */
         List<WebGeoName>list = attractionService.getByChart(chart);
