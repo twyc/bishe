@@ -9,11 +9,13 @@ html文件夹中使用的是单个文件集成vue2进行跳转
 
 目前维护的是web文件夹下使用vue3脚手架搭建的spa 交互和之前一样
 
+## Done
+- axios拦截器实现日志打印、~~前端token验证~~（依赖response改造）
+
 ## TODO：
 ### S
 0. 退出登录功能和前端的token存放位置调研
-1. 前端接口请求和返回时的拦截器实现log
-2. 错误码规范 改造commonReturnType类 避免status字符串匹配和多个数据需要传输时的intent结构
+1. 错误码规范 改造commonReturnType类 避免status字符串匹配和多个数据需要传输时的intent结构
 
 ### p0
 1. 有一些写在controller层的逻辑 预期下沉到service层
