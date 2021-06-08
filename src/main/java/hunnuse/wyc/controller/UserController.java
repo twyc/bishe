@@ -5,7 +5,9 @@ import hunnuse.wyc.Server.UserService;
 import hunnuse.wyc.dao.UserMapper;
 import hunnuse.wyc.dataobject.User;
 import hunnuse.wyc.dataobject.WebGeoName;
+import hunnuse.wyc.request.UserLoginRequest;
 import hunnuse.wyc.response.CommonReturnType;
+import hunnuse.wyc.response.UserLoginResponse;
 import hunnuse.wyc.utils.SnowFlake;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,6 @@ import static org.springframework.util.DigestUtils.md5Digest;
 @CrossOrigin(allowCredentials="true", allowedHeaders = "*")
 @ResponseBody
 public class UserController {
-
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -95,23 +96,8 @@ public class UserController {
 
     @RequestMapping(value = "/login",method = {RequestMethod.POST})
     @ResponseBody
-    public CommonReturnType login(@RequestParam(name = "userName")String userName,
-                                  @RequestParam(name = "password")String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        User user = userMapper.selectByName(userName);
-        if (user == null){
-            return CommonReturnType.create(null,"dont exist");
-        }
-        if (user.getPassword().equals(password)) {
-            Long token = snowFlake.nextId();
-            LOG.info("生成单点登录token：{}，并放入redis中", token);
-            redisTemplate.opsForValue().set(token.toString(), user.toString(), 3600 * 24, TimeUnit.SECONDS);
-            HashMap<String, Object> intent = new HashMap<>();
-            intent.put("token", token);
-            // TODO 定义前端使用的object
-            intent.put("user", user);
-            return CommonReturnType.create(intent);
-        }
-        return CommonReturnType.create(null,"failed");
+    public CommonReturnType login(UserLoginRequest userLoginRequest) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        return userService.login(userLoginRequest);
     }
 
     @GetMapping(("/logout/{token}"))

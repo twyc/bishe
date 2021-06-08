@@ -85,12 +85,13 @@ public class AttractionService {
         return ret;
     }
 
+    // 景点推荐功能的核心代码
     public CommonReturnType getAttraction(String attsWant){
         List<Rule>rules = ruleMapper.listRule();
         String atts[] = attsWant.split(",");
-        Collections.reverse(rules);
+        Collections.reverse(rules); //为了返回尽量多的景点 即lk的k尽可能大
         for (Rule rule:rules){
-            boolean flag = false;
+            boolean flag = false; //判断当前这个rule是否是想去的景点的超集
             for (String att:atts){
                 if (!rule.getAtts().contains(att)){
                     flag=true;

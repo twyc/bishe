@@ -39,7 +39,7 @@
         </a>
       </a-popconfirm>
       <a class="login-menu" v-show="user.id">
-        <span>您好：{{user.name}}</span>
+        <span>您好：{{user.userName}}</span>
       </a>
       <a class="login-menu" v-show="!user.id" @click="showLoginModal">
         <span>登录</span>
@@ -111,7 +111,7 @@ export default defineComponent({
         if (data.status == "success") {
           loginModalVisible.value = false;
           message.success("登录成功！");
-          store.commit("setUser", data.data.user);
+          store.commit("setUser", data.data);
         } else {
           message.error(data.status);
         }
@@ -122,7 +122,7 @@ export default defineComponent({
       console.log("退出登录开始");
       axios.get('/user/logout/' + user.value.token).then((response) => {
         const data = response.data;
-        if (data.success) {
+        if (data.status == "success") {
           message.success("退出登录成功！");
           store.commit("setUser", {});
         } else {

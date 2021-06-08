@@ -26,10 +26,11 @@ public class RuleService {
     private TravelogueMapper travelogueMapper;
     @Autowired
     private RuleMapper ruleMapper;
+    private static final int miniSupport = 2;//置信的频率阈值 todo 常量命名规范学习
     public CommonReturnType apriori(){
         List<WebGeoName> atts = webGeoNameMapper.listAttraction();
         List<Travelogue> routes = travelogueMapper.listTravelogue();
-        Map<WebGeoName,Integer> support = getSupport(atts,routes,2);
+        Map<WebGeoName,Integer> support = getSupport(atts,routes);
         //现在这个Map里存放的即为L1
         List<Rule>L1 = new ArrayList<>();
         for (WebGeoName att:support.keySet()){
@@ -42,27 +43,25 @@ public class RuleService {
             L1.add(rule);
             ruleMapper.insert(rule);
         }
-        dfs(L1,atts,routes,2);
+        dfs(L1,routes);
         return CommonReturnType.create("sucess");
     }
-    private void dfs(List<Rule>lk,List<WebGeoName>atts,List<Travelogue>routes,int miniSupport){
-        ArrayList<Rule> lk1 = getLkPlus1(lk,atts,routes,miniSupport);
+    private void dfs(List<Rule>lk,List<Travelogue>routes){
+        ArrayList<Rule> lk1 = getLkPlus1(lk,routes);
         if (lk1==null)return;
         for (Rule rule:lk1){
             ruleMapper.insert(rule);
         }
-        dfs(lk1,atts,routes,miniSupport);
+        dfs(lk1,routes);
     }
 
     /**
      * 由Lk得到Lk+1
      * @param lk
-     * @param atts
      * @param routes
-     * @param miniSupport
      * @return
      */
-    private ArrayList<Rule> getLkPlus1(List<Rule>lk,List<WebGeoName>atts,List<Travelogue>routes,int miniSupport){
+    private ArrayList<Rule> getLkPlus1(List<Rule>lk,List<Travelogue>routes){
         if (lk==null)return null;
         int len=lk.size();
         ArrayList<Rule>ret = new ArrayList<>();
@@ -72,7 +71,7 @@ public class RuleService {
                 if (rule!=null){
                     int occ=getOccurence(routes,rule.getAtts());
                     rule.setOccurence(occ);
-                    if (occ>1){
+                    if (occ>=miniSupport){
                         ret.add(rule);
                     }
                 }
@@ -129,6 +128,9 @@ public class RuleService {
     }
     /**
      * 判断两条规则是否可以合并
+     * a和b一定是相同大小size的集合
+     * 所以可以合并的标准是并集大小=size+1
+     * 合并即取并集
      * @param a
      * @param b
      * @return
@@ -164,10 +166,9 @@ public class RuleService {
      * 得到L0的方法
      * @param atts
      * @param routes
-     * @param miniSupport
      * @return
      */
-    private Map<WebGeoName,Integer> getSupport(List<WebGeoName> atts, List<Travelogue> routes,int miniSupport){
+    private Map<WebGeoName,Integer> getSupport(List<WebGeoName> atts, List<Travelogue> routes){
         Map<WebGeoName,Integer>ret = new HashMap<>();
         for (WebGeoName att:atts){
             int cnt=0;
