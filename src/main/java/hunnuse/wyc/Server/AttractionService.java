@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -36,11 +37,35 @@ public class AttractionService {
     private TravelogueMapper travelogueMapper;
     @Autowired
     private RuleMapper ruleMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     private OkHttpClient client = new OkHttpClient();
 
-    public List<WebGeoName> listAttractions(){
+    private static final String redisKey = "hotAttraction";
+
+    public List<WebGeoName> listAttractions() {
         return webGeoNameMapper.listAttraction();
+    }
+
+    public void didClickAttraction(Integer id) {
+        this.redisTemplate.opsForZSet().incrementScore(redisKey, id, 1);
+    }
+
+    /**
+     * 从redis中取出排名0~count的景点
+     * @param count
+     * @return
+     */
+    public List<WebGeoName> getHotAttractions(Integer count) {
+        Set<Integer> attIDSet = this.redisTemplate.opsForZSet().reverseRange(redisKey, 0, count);
+        Integer[] attIDs = attIDSet.toArray(new Integer[0]);
+        List<WebGeoName> attsList = new ArrayList<WebGeoName>();
+        for (Integer id : attIDs) {
+            WebGeoName att = this.webGeoNameMapper.selectByPrimaryKey(id);
+            attsList.add(att);
+        }
+        return attsList;
     }
 
     public List<WebGeoName> getByChart(String chart){

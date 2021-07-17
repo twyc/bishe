@@ -6,7 +6,7 @@
       <div id="tabler">
         <h2>景点列表</h2>
         <ul style="font-size: 18px">
-          <li v-for="it in showItems" @click="fun(it)" v-bind:key="it">
+          <li v-for="it in showItems" @click="clickAttraction(it)" v-bind:key="it">
             <a href="#">
               {{ it.name }}
             </a>
@@ -83,8 +83,12 @@ export default {
       this.showItems = this.allItems.slice(this.itemNum*(this.pageNo-1)+1,this.itemNum*this.pageNo+1);
       console.log("当前页：" + this.pageNo);
     },
-    fun:function(it){
+    clickAttraction:function(it){
       this.map.clearMap();
+      console.log("当前点击的景点 " + it.webgeonameid);
+      axios.get("/attraction/didClickAttraction?id="+it.webgeonameid,{
+        withCredentials: true
+      });
       var marker = new AMap.Marker({
         position: new AMap.LngLat(it.latitude,it.longitude),
         title: it.name

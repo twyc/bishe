@@ -63,4 +63,18 @@ public class AttractionController {
         return CommonReturnType.create(list.toArray());
     }
 
+    @RequestMapping(value = "/getHotAttractions",method = {RequestMethod.GET})
+    @ResponseBody
+    public CommonReturnType getHotAttractions(@RequestParam(name = "count")Integer count) {
+        List<WebGeoName>list = attractionService.getHotAttractions(count);
+        return CommonReturnType.create(list.toArray());
+    }
+
+    @RequestMapping(value = "/didClickAttraction",method = {RequestMethod.GET})
+    @ResponseBody
+    public CommonReturnType didClickAttraction(@RequestParam(name = "id")Integer id) {
+        attractionService.didClickAttraction(id);
+        return CommonReturnType.create(null);
+    }
+
 }
