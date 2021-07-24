@@ -1,7 +1,6 @@
 package hunnuse.wyc.controller;
 
-import hunnuse.wyc.Server.RuleService;
-import hunnuse.wyc.dao.RuleMapper;
+import hunnuse.wyc.service.RuleService;
 import hunnuse.wyc.response.CommonReturnType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

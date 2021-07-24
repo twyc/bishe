@@ -1,8 +1,8 @@
 package hunnuse.wyc.controller;
 
-import hunnuse.wyc.Server.AttractionService;
-import hunnuse.wyc.Server.RouteService;
-import hunnuse.wyc.Server.UserService;
+import hunnuse.wyc.service.AttractionService;
+import hunnuse.wyc.service.RouteService;
+import hunnuse.wyc.service.UserService;
 import hunnuse.wyc.dataobject.Travelogue;
 import hunnuse.wyc.response.CommonReturnType;
 import hunnuse.wyc.utils.StringUtil;
@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.ObjectUtils.min;
 
 /**
  * @ClassName: RouteController

@@ -1,17 +1,15 @@
-package hunnuse.wyc.Server;
+package hunnuse.wyc.service;
 
 import hunnuse.wyc.dao.RuleMapper;
 import hunnuse.wyc.dao.TravelogueMapper;
 import hunnuse.wyc.dao.WebGeoNameMapper;
 import hunnuse.wyc.dataobject.Rule;
-import hunnuse.wyc.dataobject.Travelogue;
 import hunnuse.wyc.dataobject.WebGeoName;
 import hunnuse.wyc.response.CommonReturnType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -163,7 +161,7 @@ public class AttractionService {
             WebGeoName webGeoName = new WebGeoName();
             webGeoName.setWebgeonameid(++cnt);
             webGeoName.setName(tt);
-            String url = "http://restapi.amap.com/v3/geocode/geo?key=dba359696d9128e480e86a54ca9944f1&address="+tt+"&city=长沙";
+            String url = "http://restapi.amap.com/v3/geocode/geo?key=akey&address="+tt+"&city=长沙";
             String response = run(url);
             JSONObject jsonObject = new JSONObject(response);
             JSONArray ja = jsonObject.getJSONArray("geocodes");

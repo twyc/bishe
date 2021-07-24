@@ -1,4 +1,4 @@
-package hunnuse.wyc.Server;
+package hunnuse.wyc.service;
 
 import hunnuse.wyc.dao.RuleMapper;
 import hunnuse.wyc.dao.TravelogueMapper;

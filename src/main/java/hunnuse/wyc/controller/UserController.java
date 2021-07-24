@@ -1,19 +1,17 @@
 package hunnuse.wyc.controller;
 
-import hunnuse.wyc.Server.AttractionService;
-import hunnuse.wyc.Server.UserService;
+import hunnuse.wyc.service.AttractionService;
+import hunnuse.wyc.service.UserService;
 import hunnuse.wyc.dao.UserMapper;
 import hunnuse.wyc.dataobject.User;
 import hunnuse.wyc.dataobject.WebGeoName;
 import hunnuse.wyc.request.UserLoginRequest;
 import hunnuse.wyc.response.CommonReturnType;
-import hunnuse.wyc.response.UserLoginResponse;
 import hunnuse.wyc.utils.SnowFlake;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 
@@ -21,11 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.springframework.util.DigestUtils.md5Digest;
 
@@ -46,8 +41,6 @@ public class UserController {
     private UserMapper userMapper;
     @Autowired
     private HttpServletRequest httpServletRequest;
-    @Autowired
-    private AttractionService attractionService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -161,6 +154,7 @@ public class UserController {
     }
 
     /**
+     * @Deprecated
      * 根据第一次登陆用户选择的标签
      * 更新user的标签 修改其在数据库中的值
      * 返回推荐的内容
@@ -180,8 +174,7 @@ public class UserController {
         /**t
          *  根据chart这三个字节返回完全匹配的景点 如果不够就random
          */
-        List<WebGeoName>list = attractionService.getByChart(chart);
-        return CommonReturnType.create(list.toArray());
+        return CommonReturnType.create("despe");
     }
 
     /**

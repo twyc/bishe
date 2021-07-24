@@ -1,19 +1,15 @@
 package hunnuse.wyc.controller;
 
-import hunnuse.wyc.Server.AttractionService;
+import hunnuse.wyc.service.AttractionService;
 import hunnuse.wyc.dao.WebGeoNameMapper;
-import hunnuse.wyc.dataobject.Travelogue;
 import hunnuse.wyc.dataobject.WebGeoName;
 import hunnuse.wyc.response.CommonReturnType;
-import hunnuse.wyc.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 
 /**

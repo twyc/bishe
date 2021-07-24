@@ -1,4 +1,4 @@
-package hunnuse.wyc.Server;
+package hunnuse.wyc.service;
 
 import hunnuse.wyc.controller.UserController;
 import hunnuse.wyc.dao.UserMapper;

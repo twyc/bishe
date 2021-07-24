@@ -1,4 +1,4 @@
-package hunnuse.wyc.Server;
+package hunnuse.wyc.service;
 
 import hunnuse.wyc.dao.TravelogueMapper;
 import hunnuse.wyc.dataobject.Travelogue;
@@ -13,8 +13,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.apache.commons.lang3.ObjectUtils.min;
 
 /**
  * @ClassName: RouteService
