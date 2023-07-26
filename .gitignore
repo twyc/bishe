@@ -1,3 +1,5 @@
 /target/
 /.idea/
 /src/main/resources/application.properties
+# TODO: uncomment it after apply a new key.
+# /web/public/js/config.js
